@@ -1,0 +1,28 @@
+services:
+  # Serviço da API
+  app:
+    build: .
+    container_name: app_gamer_api
+    command: poetry run uvicorn src.interface.api.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app # Espelha sua pasta local para dentro do container (Hot Reload)
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  # Serviço do Banco de Dados (Postgres)
+  db:
+    image: postgres:15-alpine
+    container_name: app_gamer_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persiste os dados mesmo se desligar o container
+    env_file:
+      - .env
+    ports:
+      - "5432:5432" # Libera a porta para você acessar via ferramenta visual (DBeaver, etc)
+
+volumes:
+  postgres_data:
