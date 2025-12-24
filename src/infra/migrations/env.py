@@ -10,7 +10,8 @@ from alembic import context
 # IMPORTANTE: Importar seus modelos e configs aqui
 from src.core.config import settings
 from src.infra.database.config import Base
-from src.infra.models.user import UserModel # Importe todos os modelos aqui para o Alembic ver
+from src.infra.models.user import UserModel
+from src.infra.models.console import ConsoleModel
 
 config = context.config
 
