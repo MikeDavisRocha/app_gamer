@@ -12,6 +12,9 @@ from src.application.use_cases.authenticate_user import AuthenticateUserUseCase
 from src.application.dtos.auth_dto import LoginInput, TokenOutput
 from src.core.exceptions import CredentialsError
 
+from src.interface.api.dependencies import get_current_user
+from src.domain.entities.user import User
+
 router = APIRouter()
 
 @router.post(
@@ -69,3 +72,10 @@ async def login(
             detail={"code": "AUTH_ERROR", "message": str(e)},
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+@router.get("/me", response_model=APIResponse[UserOutput])
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    """
+    Retorna os dados do usuário logado (Rota Protegida).
+    """
+    return APIResponse(success=True, data=current_user)

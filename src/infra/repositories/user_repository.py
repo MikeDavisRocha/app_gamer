@@ -42,3 +42,18 @@ class UserRepository(IUserRepository):
         # Devolve a entidade com o ID gerado
         user.id = user_model.id
         return user
+
+    async def get_by_id(self, user_id: int) -> Optional[User]:
+        query = select(UserModel).where(UserModel.id == user_id)
+        result = await self.session.execute(query)
+        user_model = result.scalars().first()
+
+        if user_model:
+            return User(
+                id=user_model.id,
+                username=user_model.username,
+                email=user_model.email,
+                password_hash=user_model.password_hash,
+                role=user_model.role
+            )
+        return None
