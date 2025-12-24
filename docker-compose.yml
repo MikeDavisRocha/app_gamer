@@ -8,6 +8,8 @@ services:
       - .:/app # Espelha sua pasta local para dentro do container (Hot Reload)
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:password123@db:5432/app_gamer_db
     env_file:
       - .env
     depends_on:
