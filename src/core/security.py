@@ -4,8 +4,8 @@ from jose import jwt
 from passlib.context import CryptContext
 from src.core.config import settings
 
-# Configuração do Hashing (Bcrypt)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configuração do Hashing
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifica se a senha em texto puro bate com o hash salvo."""
