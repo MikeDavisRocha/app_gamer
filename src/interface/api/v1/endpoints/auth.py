@@ -8,6 +8,10 @@ from src.application.dtos.user_dto import UserCreateInput, UserOutput
 from src.interface.api.v1.schemas.response import APIResponse
 from src.core.exceptions import UserAlreadyExistsError
 
+from src.application.use_cases.authenticate_user import AuthenticateUserUseCase
+from src.application.dtos.auth_dto import LoginInput, TokenOutput
+from src.core.exceptions import CredentialsError
+
 router = APIRouter()
 
 @router.post(
@@ -38,4 +42,30 @@ async def register(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": "USER_EXISTS", "message": str(e)}
+        )
+
+@router.post(
+    "/login",
+    response_model=APIResponse[TokenOutput]
+)
+async def login(
+    login_input: LoginInput,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Autentica um usuário e retorna os tokens de acesso.
+    """
+    try:
+        repository = UserRepository(db)
+        use_case = AuthenticateUserUseCase(repository)
+        
+        token_result = await use_case.execute(login_input)
+        
+        return APIResponse(success=True, data=token_result)
+    
+    except CredentialsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "AUTH_ERROR", "message": str(e)},
+            headers={"WWW-Authenticate": "Bearer"},
         )
