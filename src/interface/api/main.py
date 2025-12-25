@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.interface.api.v1.endpoints import auth, consoles
+from src.interface.api.v1.endpoints import auth, consoles, games
 
 
 app = FastAPI(
@@ -10,6 +10,7 @@ app = FastAPI(
 
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(consoles.router, prefix="/consoles", tags=["Consoles"])
+app.include_router(games.router, prefix="/games", tags=["Games"])
 
 @app.get("/health")
 def health_check():
