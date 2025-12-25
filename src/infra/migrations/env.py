@@ -12,6 +12,7 @@ from src.core.config import settings
 from src.infra.database.config import Base
 from src.infra.models.user import UserModel
 from src.infra.models.console import ConsoleModel
+from src.infra.models.game import GameModel
 
 config = context.config
 
