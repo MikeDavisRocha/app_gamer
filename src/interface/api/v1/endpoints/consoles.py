@@ -41,10 +41,7 @@ async def delete_console(
     db: AsyncSession = Depends(get_db),
     admin_user: User = Depends(get_current_admin)
 ):
-    try:
-        repo = ConsoleRepository(db)
-        use_case = DeleteConsoleUseCase(repo)
-        await use_case.execute(id)
-        return APIResponse(success=True, data=None)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    repo = ConsoleRepository(db)
+    use_case = DeleteConsoleUseCase(repo)
+    await use_case.execute(id)
+    return APIResponse(success=True, data=None)

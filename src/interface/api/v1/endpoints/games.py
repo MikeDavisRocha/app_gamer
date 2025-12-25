@@ -19,17 +19,13 @@ router = APIRouter()
 async def create_game(
     input_data: GameCreateInput,
     db: AsyncSession = Depends(get_db),
-    admin_user: User = Depends(get_current_admin) # <--- APENAS ADMIN [cite: 47]
+    admin_user: User = Depends(get_current_admin)
 ):
     game_repo = GameRepository(db)
     console_repo = ConsoleRepository(db)
-    
-    use_case = CreateGameUseCase(game_repo, console_repo)
-    try:
-        result = await use_case.execute(input_data)
-        return APIResponse(success=True, data=result)
-    except DomainException as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    use_case = CreateGameUseCase(game_repo, console_repo)    
+    result = await use_case.execute(input_data)    
+    return APIResponse(success=True, data=result)
 
 @router.get("/", response_model=APIResponse[PaginatedGameResponse])
 async def list_games(
@@ -51,10 +47,7 @@ async def delete_game(
     db: AsyncSession = Depends(get_db),
     admin_user: User = Depends(get_current_admin) # <--- APENAS ADMIN [cite: 60]
 ):
-    try:
-        repo = GameRepository(db)
-        use_case = DeleteGameUseCase(repo)
-        await use_case.execute(id)
-        return APIResponse(success=True, data=None)
-    except DomainException as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    repo = GameRepository(db)
+    use_case = DeleteGameUseCase(repo)
+    await use_case.execute(id)
+    return APIResponse(success=True, data=None)
