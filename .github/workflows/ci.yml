@@ -55,4 +55,5 @@ jobs:
           ACCESS_TOKEN_EXPIRE_MINUTES: 30
           PROJECT_NAME: "Gamer API Test"
         run: |
+          poetry run alembic upgrade head
           poetry run pytest -v
