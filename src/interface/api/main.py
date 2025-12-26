@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
+from starlette.middleware.base import BaseHTTPMiddleware
+from src.interface.api.middlewares.logging import logging_middleware
 
 # Imports dos nossos handlers
 from src.interface.api.exception_handlers import (
@@ -18,6 +20,8 @@ app = FastAPI(
     description="API para gerenciamento de jogos - Desafio Backend",
     version="1.0.0"
 )
+
+app.add_middleware(BaseHTTPMiddleware, dispatch=logging_middleware)
 
 app.add_exception_handler(DomainException, domain_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
