@@ -4,12 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.infra.database.config import get_db
 from src.infra.repositories.user_repository import UserRepository
 from src.application.use_cases.register_user import RegisterUserUseCase
+from src.application.use_cases.refresh_token import RefreshTokenUseCase
 from src.application.dtos.user_dto import UserCreateInput, UserOutput
 from src.interface.api.v1.schemas.response import APIResponse
 from src.core.exceptions import UserAlreadyExistsError
 
 from src.application.use_cases.authenticate_user import AuthenticateUserUseCase
-from src.application.dtos.auth_dto import LoginInput, TokenOutput
+from src.application.dtos.auth_dto import LoginInput, TokenOutput, RefreshTokenInput
 from src.core.exceptions import CredentialsError
 
 from src.interface.api.dependencies import get_current_user
@@ -79,3 +80,27 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     Retorna os dados do usuário logado (Rota Protegida).
     """
     return APIResponse(success=True, data=current_user)
+
+@router.post("/refresh", response_model=APIResponse[TokenOutput])
+async def refresh_token(
+    refresh_input: RefreshTokenInput,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Renova o Access Token usando um Refresh Token válido.
+    Implementa rotação de tokens (retorna um novo refresh token também).
+    """
+    try:
+        repository = UserRepository(db)
+        use_case = RefreshTokenUseCase(repository)
+
+        token_result = await use_case.execute(refresh_input)
+
+        return APIResponse(success=True, data=token_result)
+
+    except CredentialsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "INVALID_TOKEN", "message": str(e)},
+            headers={"WWW-Authenticate": "Bearer"},
+        )
