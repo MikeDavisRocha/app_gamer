@@ -34,23 +34,7 @@ async def create_game(
     return APIResponse(success=True, data=result)
 
 
-from typing import Literal, Optional
-from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from src.domain.entities.user import User
-from src.infra.database.config import get_db
-from src.interface.api.auth.deps import get_current_user
-from src.infra.repositories.game_repository import GameRepository
-from src.application.use_cases.game_use_cases import ListGamesUseCase, CreateGameUseCase, DeleteGameUseCase, GetGameByIdUseCase
-from src.application.dtos.game_dto import GameInput, GameOutput, PaginatedGameResponse
-from src.application.dtos.api_response import APIResponse
-
-router = APIRouter()
-
-# ... (outras rotas como create, get_by_id, delete podem ficar iguais)
-
-@router.get("", response_model=APIResponse[PaginatedGameResponse])
+@router.get("/", response_model=APIResponse[PaginatedGameResponse])
 async def list_games(
     page: int = Query(1, ge=1, description="Número da página"),
     size: int = Query(10, ge=1, le=100, description="Itens por página"),
