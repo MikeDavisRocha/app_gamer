@@ -46,6 +46,9 @@ jobs:
       - name: Instalar Dependências
         run: poetry install --no-interaction --no-root
 
+      - name: Verificar Lint e Formatação
+        run: poetry run task lint
+
       - name: Rodar Testes (Unitários e Integração)
         env:
           # Variáveis de ambiente para o teste conectar no banco do GitHub Actions
