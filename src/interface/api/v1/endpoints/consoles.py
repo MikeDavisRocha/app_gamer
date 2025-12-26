@@ -6,7 +6,7 @@ from src.infra.database.config import get_db
 from src.interface.api.dependencies import get_current_user, get_current_admin
 from src.infra.repositories.console_repository import ConsoleRepository
 from src.application.use_cases.console_use_cases import (
-    CreateConsoleUseCase, ListConsolesUseCase, DeleteConsoleUseCase
+    CreateConsoleUseCase, ListConsolesUseCase, DeleteConsoleUseCase, GetConsoleByIdUseCase
 )
 from src.application.dtos.console_dto import ConsoleCreateInput, ConsoleOutput
 from src.interface.api.v1.schemas.response import APIResponse
@@ -33,6 +33,28 @@ async def list_consoles(
     repo = ConsoleRepository(db)
     use_case = ListConsolesUseCase(repo)
     result = await use_case.execute()
+    return APIResponse(success=True, data=result)
+
+@router.get("/{id}", response_model=APIResponse[ConsoleOutput])
+async def get_console(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user) # <--- Requisito: Usuários autenticados
+):
+    """
+    Busca um console específico pelo ID.
+    """
+    repo = ConsoleRepository(db)
+    use_case = GetConsoleByIdUseCase(repo)
+
+    result = await use_case.execute(id)
+
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "NOT_FOUND", "message": f"Console with id {id} not found"}
+        )
+
     return APIResponse(success=True, data=result)
 
 @router.delete("/{id}", response_model=APIResponse[None])

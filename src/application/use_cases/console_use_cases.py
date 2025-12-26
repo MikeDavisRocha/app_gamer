@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from src.domain.interfaces.console_repository import IConsoleRepository
 from src.domain.entities.console import Console
 from src.application.dtos.console_dto import ConsoleCreateInput, ConsoleOutput
@@ -30,3 +30,13 @@ class DeleteConsoleUseCase:
         success = await self.repository.delete(id)
         if not success:
             raise DomainException(f"Console {id} not found")
+
+class GetConsoleByIdUseCase:
+    def __init__(self, repository: IConsoleRepository):
+        self.repository = repository
+
+    async def execute(self, id: int) -> Optional[ConsoleOutput]:
+        console = await self.repository.get_by_id(id)
+        if not console:
+            return None
+        return ConsoleOutput.model_validate(console)
