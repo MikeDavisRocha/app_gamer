@@ -55,3 +55,13 @@ class DeleteGameUseCase:
         success = await self.repository.delete(id)
         if not success:
             raise DomainException(f"Game {id} not found")
+
+class GetGameByIdUseCase:
+    def __init__(self, repository: IGameRepository):
+        self.repository = repository
+
+    async def execute(self, id: int) -> Optional[GameOutput]:
+        game = await self.repository.get_by_id(id)
+        if not game:
+            return None
+        return GameOutput.model_validate(game)

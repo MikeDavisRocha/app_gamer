@@ -6,7 +6,7 @@ from src.interface.api.dependencies import get_current_user, get_current_admin
 from src.infra.repositories.game_repository import GameRepository
 from src.infra.repositories.console_repository import ConsoleRepository
 from src.application.use_cases.game_use_cases import (
-    CreateGameUseCase, ListGamesUseCase, DeleteGameUseCase
+    CreateGameUseCase, ListGamesUseCase, DeleteGameUseCase, GetGameByIdUseCase
 )
 from src.application.dtos.game_dto import GameCreateInput, GameOutput, PaginatedGameResponse
 from src.interface.api.v1.schemas.response import APIResponse
@@ -51,3 +51,25 @@ async def delete_game(
     use_case = DeleteGameUseCase(repo)
     await use_case.execute(id)
     return APIResponse(success=True, data=None)
+
+@router.get("/{id}", response_model=APIResponse[GameOutput])
+async def get_game(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user) # <--- Requisito: Usuários autenticados
+):
+    """
+    Busca os detalhes de um jogo específico pelo ID.
+    """
+    repo = GameRepository(db)
+    use_case = GetGameByIdUseCase(repo)
+
+    result = await use_case.execute(id)
+
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "NOT_FOUND", "message": f"Game with id {id} not found"}
+        )
+
+    return APIResponse(success=True, data=result)
