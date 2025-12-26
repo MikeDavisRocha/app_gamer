@@ -1,3 +1,4 @@
+from typing import Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,18 +34,49 @@ async def create_game(
     return APIResponse(success=True, data=result)
 
 
-@router.get("/", response_model=APIResponse[PaginatedGameResponse])
+from typing import Literal, Optional
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.domain.entities.user import User
+from src.infra.database.config import get_db
+from src.interface.api.auth.deps import get_current_user
+from src.infra.repositories.game_repository import GameRepository
+from src.application.use_cases.game_use_cases import ListGamesUseCase, CreateGameUseCase, DeleteGameUseCase, GetGameByIdUseCase
+from src.application.dtos.game_dto import GameInput, GameOutput, PaginatedGameResponse
+from src.application.dtos.api_response import APIResponse
+
+router = APIRouter()
+
+# ... (outras rotas como create, get_by_id, delete podem ficar iguais)
+
+@router.get("", response_model=APIResponse[PaginatedGameResponse])
 async def list_games(
     page: int = Query(1, ge=1, description="Número da página"),
     size: int = Query(10, ge=1, le=100, description="Itens por página"),
-    name: str = Query(None, description="Filtrar por nome do jogo"),
-    console_id: int = Query(None, description="Filtrar por ID do console"),
+    name: Optional[str] = Query(None, description="Filtrar por nome"),
+    console_id: Optional[int] = Query(None, description="Filtrar por console"),
+    sort_by: Literal["name", "created_at"] = Query("name", description="Campo para ordenação"),
+    sort_order: Literal["asc", "desc"] = Query("asc", description="Direção: 'asc' ou 'desc'"),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),  # <--- USUÁRIO LOGADO
+    current_user: User = Depends(get_current_user)
 ):
+    """
+    Lista jogos com paginação, filtros e ordenação dinâmica.
+    """
     repo = GameRepository(db)
     use_case = ListGamesUseCase(repo)
-    result = await use_case.execute(page, size, name, console_id)
+    
+    # Passando os novos parâmetros para o Use Case
+    result = await use_case.execute(
+        page=page, 
+        size=size, 
+        name=name, 
+        console_id=console_id,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
+    
     return APIResponse(success=True, data=result)
 
 

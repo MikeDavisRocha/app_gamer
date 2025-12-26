@@ -34,17 +34,31 @@ class ListGamesUseCase:
         self.repository = repository
 
     async def execute(
-        self, page: int, size: int, name: Optional[str] = None, console_id: Optional[int] = None
-    ) -> PaginatedGameResponse:
-        # 1. Cálculo do Offset (Paginação)
-        skip = (page - 1) * size
+        self, 
+        page: int, 
+        size: int, 
+        name: Optional[str] = None, 
+        console_id: Optional[int] = None,
+        sort_by: str = "name",
+        sort_order: str = "asc"
+    ) -> PaginatedGameResponse:        
+        
+        games, total = await self.repository.list_with_filters(
+            skip=(page - 1) * size,
+            limit=size,
+            name=name,
+            console_id=console_id,
+            sort_by=sort_by,
+            sort_order=sort_order
+        )
 
-        # 2. Busca no repositório
-        games, total = await self.repository.list_with_filters(skip, size, name, console_id)
-
-        # 3. Montagem da Resposta Paginada
+        # Monta a resposta paginada
         return PaginatedGameResponse(
-            total=total, items=[GameOutput.model_validate(g) for g in games], page=page, size=size
+            items=[GameOutput.model_validate(g) for g in games],
+            total=total,
+            page=page,
+            size=size,
+            pages=(total + size - 1) // size
         )
 
 
