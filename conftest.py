@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 # Isso adiciona o diretório raiz do projeto ao caminho de busca do Python.
 # Assim, o teste consegue encontrar a pasta "src".

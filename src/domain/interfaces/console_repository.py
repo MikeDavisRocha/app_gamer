@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
+
 from src.domain.entities.console import Console
+
 
 class IConsoleRepository(ABC):
     @abstractmethod

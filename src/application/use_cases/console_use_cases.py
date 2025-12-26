@@ -1,8 +1,10 @@
 from typing import List, Optional
-from src.domain.interfaces.console_repository import IConsoleRepository
-from src.domain.entities.console import Console
+
 from src.application.dtos.console_dto import ConsoleCreateInput, ConsoleOutput
 from src.core.exceptions import DomainException
+from src.domain.entities.console import Console
+from src.domain.interfaces.console_repository import IConsoleRepository
+
 
 class CreateConsoleUseCase:
     def __init__(self, repository: IConsoleRepository):
@@ -14,6 +16,7 @@ class CreateConsoleUseCase:
         saved = await self.repository.create(new_console)
         return ConsoleOutput.model_validate(saved)
 
+
 class ListConsolesUseCase:
     def __init__(self, repository: IConsoleRepository):
         self.repository = repository
@@ -21,6 +24,7 @@ class ListConsolesUseCase:
     async def execute(self) -> List[ConsoleOutput]:
         consoles = await self.repository.list_all()
         return [ConsoleOutput.model_validate(c) for c in consoles]
+
 
 class DeleteConsoleUseCase:
     def __init__(self, repository: IConsoleRepository):
@@ -30,6 +34,7 @@ class DeleteConsoleUseCase:
         success = await self.repository.delete(id)
         if not success:
             raise DomainException(f"Console {id} not found")
+
 
 class GetConsoleByIdUseCase:
     def __init__(self, repository: IConsoleRepository):

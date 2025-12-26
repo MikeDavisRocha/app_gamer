@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
+
 from src.domain.entities.game import Game
+
 
 class IGameRepository(ABC):
     @abstractmethod
@@ -17,11 +19,7 @@ class IGameRepository(ABC):
 
     @abstractmethod
     async def list_with_filters(
-        self, 
-        skip: int, 
-        limit: int, 
-        name: Optional[str] = None, 
-        console_id: Optional[int] = None
+        self, skip: int, limit: int, name: Optional[str] = None, console_id: Optional[int] = None
     ) -> Tuple[List[Game], int]:
         """
         Retorna uma tupla: (Lista de Jogos encontrados, Total de registros no banco para esse filtro)

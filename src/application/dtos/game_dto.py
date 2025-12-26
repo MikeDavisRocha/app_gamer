@@ -1,10 +1,13 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
 from datetime import datetime
+from typing import List
+
+from pydantic import BaseModel, Field
+
 
 class GameCreateInput(BaseModel):
     name: str = Field(..., min_length=2)
     console_id: int
+
 
 class GameOutput(BaseModel):
     id: int
@@ -14,6 +17,7 @@ class GameOutput(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 # DTO para resposta paginada
 class PaginatedGameResponse(BaseModel):
