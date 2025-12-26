@@ -1,16 +1,21 @@
 from typing import List
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infra.database.config import get_db
+from src.infra.repositories.game_repository import GameRepository
 from src.interface.api.dependencies import get_current_user, get_current_admin
 from src.infra.repositories.console_repository import ConsoleRepository
 from src.application.use_cases.console_use_cases import (
     CreateConsoleUseCase, ListConsolesUseCase, DeleteConsoleUseCase, GetConsoleByIdUseCase
 )
+from src.application.use_cases.game_use_cases import ListGamesUseCase
 from src.application.dtos.console_dto import ConsoleCreateInput, ConsoleOutput
+from src.application.dtos.game_dto import PaginatedGameResponse
 from src.interface.api.v1.schemas.response import APIResponse
 from src.domain.entities.user import User
+
 
 router = APIRouter()
 
@@ -67,3 +72,33 @@ async def delete_console(
     use_case = DeleteConsoleUseCase(repo)
     await use_case.execute(id)
     return APIResponse(success=True, data=None)
+
+@router.get("/{console_id}/games", response_model=APIResponse[PaginatedGameResponse])
+async def list_games_by_console(
+    console_id: int,
+    page: int = Query(1, ge=1, description="Número da página"),
+    size: int = Query(10, ge=1, le=100, description="Itens por página"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user) # <--- Requisito: Usuários autenticados [cite: 58]
+):
+    """
+    Lista todos os jogos associados a um console específico.
+    Requisito do PDF: GET /consoles/{console_id}/games
+    """
+    # 1. (Opcional) Verificar se o console existe antes
+    console_repo = ConsoleRepository(db)
+    console_exists = await console_repo.get_by_id(console_id)
+    if not console_exists:
+         raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "NOT_FOUND", "message": f"Console {console_id} not found"}
+        )
+
+    # 2. Reutilizar a lógica de listar jogos, forçando o filtro console_id
+    game_repo = GameRepository(db)
+    use_case = ListGamesUseCase(game_repo)
+    
+    # Passamos o console_id da URL para o filtro do UseCase
+    result = await use_case.execute(page=page, size=size, console_id=console_id)
+    
+    return APIResponse(success=True, data=result)
