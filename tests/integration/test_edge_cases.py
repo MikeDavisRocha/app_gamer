@@ -1,8 +1,10 @@
-import pytest
-from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock, patch
-from src.interface.api.main import app
+
+import pytest
+from httpx import ASGITransport, AsyncClient
+
 from src.domain.entities.user import User
+from src.interface.api.main import app
 
 try:
     from src.interface.api.v1.endpoints.auth import get_current_user
@@ -18,13 +20,7 @@ async def test_get_non_existent_console_returns_404():
     """
     # 1. ARRANGE
     mock_user = User(
-        id=1,
-        username="test",
-        email="test@test.com",
-        password_hash="x",
-        role="user",
-        created_at=None,
-        updated_at=None
+        id=1, username="test", email="test@test.com", password_hash="x", role="user", created_at=None, updated_at=None
     )
 
     # Override do usuário
@@ -33,9 +29,9 @@ async def test_get_non_existent_console_returns_404():
     try:
         # Mock do repositório para retornar None (console não encontrado)
         with patch(
-            'src.infra.repositories.console_repository.ConsoleRepository.get_by_id',
+            "src.infra.repositories.console_repository.ConsoleRepository.get_by_id",
             new_callable=AsyncMock,
-            return_value=None
+            return_value=None,
         ):
             # 2. ACT & ASSERT
             transport = ASGITransport(app=app)

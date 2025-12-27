@@ -42,7 +42,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         502: "BAD_GATEWAY",
         503: "SERVICE_UNAVAILABLE",
     }
-    
+
     error_code = error_code_map.get(exc.status_code, "HTTP_ERROR")
 
     return JSONResponse(
