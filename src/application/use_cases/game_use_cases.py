@@ -45,7 +45,8 @@ class ListGamesUseCase:
     ) -> PaginatedGameResponse:
         
         games, total = await self.repository.list_with_filters(
-            skip=(page - 1) * size, limit=size, name=name, console_id=console_id, company=company, sort_by=sort_by, sort_order=sort_order
+            skip=(page - 1) * size, limit=size, name=name, console_id=console_id, company=company,
+            sort_by=sort_by, sort_order=sort_order
         )
 
         # Monta a resposta paginada

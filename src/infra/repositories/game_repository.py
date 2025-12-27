@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities.game import Game
 from src.domain.interfaces.game_repository import IGameRepository
-from src.infra.models.game import GameModel
 from src.infra.models.console import ConsoleModel
+from src.infra.models.game import GameModel
 
 
 class GameRepository(IGameRepository):
