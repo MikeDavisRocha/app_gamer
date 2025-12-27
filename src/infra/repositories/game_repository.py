@@ -51,7 +51,6 @@ class GameRepository(IGameRepository):
         sort_by: str = "name",
         sort_order: str = "asc",
     ) -> Tuple[List[Game], int]:
-    
         # 1. Base da Query com JOIN (Fundamental para filtrar por empresa ou checar deleção)
         # Trazemos o Game e fazemos join com Console
         query = select(GameModel).join(ConsoleModel, GameModel.console_id == ConsoleModel.id)
@@ -87,12 +86,9 @@ class GameRepository(IGameRepository):
         total = total_result.scalar_one()
 
         # 4. Ordenação e Paginação
-        field_map = {
-            "name": GameModel.name,
-            "created_at": GameModel.created_at
-        }
+        field_map = {"name": GameModel.name, "created_at": GameModel.created_at}
         sort_column = field_map.get(sort_by, GameModel.name)
-        
+
         if sort_order == "desc":
             query = query.order_by(desc(sort_column))
         else:
@@ -100,18 +96,12 @@ class GameRepository(IGameRepository):
 
         # 5. Paginação
         query = query.offset(skip).limit(limit)
-        
+
         result = await self.session.execute(query)
         models = result.scalars().all()
 
         games = [
-            Game(
-                id=m.id, 
-                name=m.name, 
-                console_id=m.console_id, 
-                created_at=m.created_at, 
-                updated_at=m.updated_at
-            )
+            Game(id=m.id, name=m.name, console_id=m.console_id, created_at=m.created_at, updated_at=m.updated_at)
             for m in models
         ]
 

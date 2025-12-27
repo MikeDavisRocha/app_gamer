@@ -55,7 +55,7 @@ async def list_games(
 
     # Passando os novos parâmetros para o Use Case
     result = await use_case.execute(
-        page=page, size=size, name=name, console_id=console_id, company=company,sort_by=sort_by, sort_order=sort_order
+        page=page, size=size, name=name, console_id=console_id, company=company, sort_by=sort_by, sort_order=sort_order
     )
 
     return APIResponse(success=True, data=result)
