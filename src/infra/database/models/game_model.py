@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+
 from src.infra.database.config import Base
+
 
 class GameModel(Base):
     __tablename__ = "games"

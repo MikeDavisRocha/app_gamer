@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, DateTime, Integer, String
+
 from src.infra.database.config import Base
+
 
 class ConsoleModel(Base):
     __tablename__ = "consoles"
