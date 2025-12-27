@@ -17,7 +17,7 @@ async def test_register_login_and_access_protected_route():
 
         user_payload = {"username": f"User {random_id}", "email": unique_email, "password": "password123"}
 
-        response_register = await client.post("/auth/register", json=user_payload)
+        response_register = await client.post("/api/v1/auth/register", json=user_payload)
         assert response_register.status_code == 201, f"Erro no registro: {response_register.text}"
         data_register = response_register.json()
         assert data_register["success"] is True
@@ -25,7 +25,7 @@ async def test_register_login_and_access_protected_route():
         # 2. LOGIN (Sign In)
         login_payload = {"email": unique_email, "password": "password123"}
 
-        response_login = await client.post("/auth/login", json=login_payload)
+        response_login = await client.post("/api/v1/auth/login", json=login_payload)
 
         assert response_login.status_code == 200, f"Erro no login: {response_login.text}"
         token_data = response_login.json()
@@ -37,5 +37,5 @@ async def test_register_login_and_access_protected_route():
         # 3. ACESSAR ROTA PROTEGIDA
         headers = {"Authorization": f"Bearer {access_token}"}
 
-        response_protected = await client.get("/consoles/", headers=headers)
+        response_protected = await client.get("/api/v1/consoles/", headers=headers)
         assert response_protected.status_code == 200

@@ -34,7 +34,7 @@ async def test_regular_user_cannot_delete_console():
         # 2. ACT (Ação)
         # Tentamos deletar um console. Não precisamos de Header de Auth,
         # pois o override já injeta o usuário autenticado.
-        response = await client.delete("/consoles/1")
+        response = await client.delete("/api/v1/consoles/1")
 
         # 3. ASSERT (Verificação)
         # O status DEVE ser 403 Forbidden (Proibido)

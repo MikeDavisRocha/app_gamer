@@ -24,11 +24,14 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-app.include_router(auth.router, prefix="/auth", tags=["Auth"])
-app.include_router(consoles.router, prefix="/consoles", tags=["Consoles"])
-app.include_router(games.router, prefix="/games", tags=["Games"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+app.include_router(consoles.router, prefix="/api/v1/consoles", tags=["Consoles"])
+app.include_router(games.router, prefix="/api/v1/games", tags=["Games"])
 
 
-@app.get("/health")
-def health_check():
+@app.get("/health", tags=["Health Check"])
+async def health_check():
+    """
+    Verifica se a API está no ar.
+    """
     return {"status": "ok", "message": "Service is running"}
