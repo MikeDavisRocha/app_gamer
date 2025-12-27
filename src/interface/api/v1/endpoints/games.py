@@ -41,6 +41,7 @@ async def list_games(
     size: int = Query(10, ge=1, le=100, description="Itens por página"),
     name: Optional[str] = Query(None, description="Filtrar por nome"),
     console_id: Optional[int] = Query(None, description="Filtrar por console"),
+    company: Optional[str] = Query(None, description="Filtrar por nome da empresa (ex: Nintendo)"),
     sort_by: Literal["name", "created_at"] = Query("name", description="Campo para ordenação"),
     sort_order: Literal["asc", "desc"] = Query("asc", description="Direção: 'asc' ou 'desc'"),
     db: AsyncSession = Depends(get_db),
@@ -54,7 +55,7 @@ async def list_games(
 
     # Passando os novos parâmetros para o Use Case
     result = await use_case.execute(
-        page=page, size=size, name=name, console_id=console_id, sort_by=sort_by, sort_order=sort_order
+        page=page, size=size, name=name, console_id=console_id, company=company,sort_by=sort_by, sort_order=sort_order
     )
 
     return APIResponse(success=True, data=result)

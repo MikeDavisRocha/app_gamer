@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.domain.entities.game import Game
 from src.domain.interfaces.game_repository import IGameRepository
 from src.infra.models.game import GameModel
+from src.infra.models.console import ConsoleModel
 
 
 class GameRepository(IGameRepository):
@@ -46,11 +47,18 @@ class GameRepository(IGameRepository):
         limit: int,
         name: Optional[str] = None,
         console_id: Optional[int] = None,
+        company: Optional[str] = None,
         sort_by: str = "name",
         sort_order: str = "asc",
     ) -> Tuple[List[Game], int]:
-        # 1. Base da Query: Apenas não deletados
-        query = select(GameModel).where(GameModel.deleted_at.is_(None))
+    
+        # 1. Base da Query com JOIN (Fundamental para filtrar por empresa ou checar deleção)
+        # Trazemos o Game e fazemos join com Console
+        query = select(GameModel).join(ConsoleModel, GameModel.console_id == ConsoleModel.id)
+
+        # Regra de Ouro: Só traz jogos de consoles ATIVOS (não deletados)
+        query = query.where(GameModel.deleted_at.is_(None))
+        query = query.where(ConsoleModel.deleted_at.is_(None))
 
         # 2. Aplica Filtros Dinâmicos
         if name:
@@ -59,30 +67,51 @@ class GameRepository(IGameRepository):
         if console_id:
             query = query.where(GameModel.console_id == console_id)
 
+        if company:
+            query = query.where(ConsoleModel.company.ilike(f"%{company}%"))
+
         # 3. Contar o total (Count)
         # Usamos select(func.count()) na query filtrada para saber o total de páginas
-        count_query = select(func.count()).select_from(query.subquery())
+        count_query = select(func.count()).select_from(GameModel).join(ConsoleModel)
+        count_query = count_query.where(GameModel.deleted_at.is_(None))
+        count_query = count_query.where(ConsoleModel.deleted_at.is_(None))
+
+        if name:
+            count_query = count_query.where(GameModel.name.ilike(f"%{name}%"))
+        if console_id:
+            count_query = count_query.where(GameModel.console_id == console_id)
+        if company:
+            count_query = count_query.where(ConsoleModel.company.ilike(f"%{company}%"))
+
         total_result = await self.session.execute(count_query)
         total = total_result.scalar_one()
 
-        # 4. Aplica Ordenação Dinâmica
-        field_map = {"name": GameModel.name, "created_at": GameModel.created_at}
-        # Se o campo não existir no mapa, usa 'name' como padrão
+        # 4. Ordenação e Paginação
+        field_map = {
+            "name": GameModel.name,
+            "created_at": GameModel.created_at
+        }
         sort_column = field_map.get(sort_by, GameModel.name)
-
+        
         if sort_order == "desc":
             query = query.order_by(desc(sort_column))
         else:
             query = query.order_by(asc(sort_column))
 
-        # 5. Aplica Paginação e Executa
+        # 5. Paginação
         query = query.offset(skip).limit(limit)
-
+        
         result = await self.session.execute(query)
         models = result.scalars().all()
 
         games = [
-            Game(id=m.id, name=m.name, console_id=m.console_id, created_at=m.created_at, updated_at=m.updated_at)
+            Game(
+                id=m.id, 
+                name=m.name, 
+                console_id=m.console_id, 
+                created_at=m.created_at, 
+                updated_at=m.updated_at
+            )
             for m in models
         ]
 
