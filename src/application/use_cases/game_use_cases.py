@@ -34,22 +34,16 @@ class ListGamesUseCase:
         self.repository = repository
 
     async def execute(
-        self, 
-        page: int, 
-        size: int, 
-        name: Optional[str] = None, 
+        self,
+        page: int,
+        size: int,
+        name: Optional[str] = None,
         console_id: Optional[int] = None,
         sort_by: str = "name",
-        sort_order: str = "asc"
-    ) -> PaginatedGameResponse:        
-        
+        sort_order: str = "asc",
+    ) -> PaginatedGameResponse:
         games, total = await self.repository.list_with_filters(
-            skip=(page - 1) * size,
-            limit=size,
-            name=name,
-            console_id=console_id,
-            sort_by=sort_by,
-            sort_order=sort_order
+            skip=(page - 1) * size, limit=size, name=name, console_id=console_id, sort_by=sort_by, sort_order=sort_order
         )
 
         # Monta a resposta paginada
@@ -58,7 +52,7 @@ class ListGamesUseCase:
             total=total,
             page=page,
             size=size,
-            pages=(total + size - 1) // size
+            pages=(total + size - 1) // size,
         )
 
 

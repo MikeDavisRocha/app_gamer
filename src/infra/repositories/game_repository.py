@@ -41,15 +41,14 @@ class GameRepository(IGameRepository):
         )
 
     async def list_with_filters(
-        self, 
-        skip: int, 
-        limit: int, 
-        name: Optional[str] = None, 
+        self,
+        skip: int,
+        limit: int,
+        name: Optional[str] = None,
         console_id: Optional[int] = None,
         sort_by: str = "name",
-        sort_order: str = "asc"
+        sort_order: str = "asc",
     ) -> Tuple[List[Game], int]:
-        
         # 1. Base da Query: Apenas não deletados
         query = select(GameModel).where(GameModel.deleted_at.is_(None))
 
@@ -67,13 +66,10 @@ class GameRepository(IGameRepository):
         total = total_result.scalar_one()
 
         # 4. Aplica Ordenação Dinâmica
-        field_map = {
-            "name": GameModel.name,
-            "created_at": GameModel.created_at
-        }
+        field_map = {"name": GameModel.name, "created_at": GameModel.created_at}
         # Se o campo não existir no mapa, usa 'name' como padrão
         sort_column = field_map.get(sort_by, GameModel.name)
-        
+
         if sort_order == "desc":
             query = query.order_by(desc(sort_column))
         else:
@@ -81,18 +77,12 @@ class GameRepository(IGameRepository):
 
         # 5. Aplica Paginação e Executa
         query = query.offset(skip).limit(limit)
-        
+
         result = await self.session.execute(query)
         models = result.scalars().all()
 
         games = [
-            Game(
-                id=m.id, 
-                name=m.name, 
-                console_id=m.console_id, 
-                created_at=m.created_at, 
-                updated_at=m.updated_at
-            )
+            Game(id=m.id, name=m.name, console_id=m.console_id, created_at=m.created_at, updated_at=m.updated_at)
             for m in models
         ]
 
@@ -107,6 +97,6 @@ class GameRepository(IGameRepository):
             return False
 
         model.deleted_at = datetime.now(timezone.utc)
-        
+
         await self.session.commit()
         return True

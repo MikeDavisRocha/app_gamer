@@ -8,7 +8,7 @@ class ConsoleModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)
-    company = Column(String, index=True, nullable=False)    
+    company = Column(String, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)

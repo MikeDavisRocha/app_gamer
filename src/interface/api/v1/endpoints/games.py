@@ -44,24 +44,19 @@ async def list_games(
     sort_by: Literal["name", "created_at"] = Query("name", description="Campo para ordenação"),
     sort_order: Literal["asc", "desc"] = Query("asc", description="Direção: 'asc' ou 'desc'"),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Lista jogos com paginação, filtros e ordenação dinâmica.
     """
     repo = GameRepository(db)
     use_case = ListGamesUseCase(repo)
-    
+
     # Passando os novos parâmetros para o Use Case
     result = await use_case.execute(
-        page=page, 
-        size=size, 
-        name=name, 
-        console_id=console_id,
-        sort_by=sort_by,
-        sort_order=sort_order
+        page=page, size=size, name=name, console_id=console_id, sort_by=sort_by, sort_order=sort_order
     )
-    
+
     return APIResponse(success=True, data=result)
 
 
