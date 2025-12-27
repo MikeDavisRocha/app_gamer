@@ -27,9 +27,27 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     logger.warning(f"HTTP Error {exc.status_code}: {exc.detail} | Path: {request.url.path}")
+
+    # Mapeia status codes para códigos de erro mais específicos
+    error_code_map = {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
+        405: "METHOD_NOT_ALLOWED",
+        409: "CONFLICT",
+        422: "UNPROCESSABLE_ENTITY",
+        429: "TOO_MANY_REQUESTS",
+        500: "INTERNAL_ERROR",
+        502: "BAD_GATEWAY",
+        503: "SERVICE_UNAVAILABLE",
+    }
+    
+    error_code = error_code_map.get(exc.status_code, "HTTP_ERROR")
+
     return JSONResponse(
         status_code=exc.status_code,
-        content={"success": False, "error": {"code": "HTTP_ERROR", "message": str(exc.detail)}},
+        content={"success": False, "error": {"code": error_code, "message": str(exc.detail)}},
     )
 
 

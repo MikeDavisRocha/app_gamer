@@ -42,7 +42,7 @@ async def test_regular_user_cannot_delete_console():
 
         data = response.json()
         assert data["success"] is False
-        assert data["error"]["code"] == "HTTP_ERROR"
+        assert data["error"]["code"] == "FORBIDDEN"
 
     # Limpeza: Removemos o override para não afetar outros testes
     app.dependency_overrides = {}
