@@ -77,7 +77,7 @@ Para garantir histórico e integridade, implementamos **Soft Delete** (`deleted_
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/MikeDavisRocha/app-gamer.git](https://github.com/MikeDavisRocha/app-gamer.git)
+    git clone https://github.com/MikeDavisRocha/app-gamer.git
     cd app-gamer
     ```
 
